@@ -50,6 +50,17 @@
   collection
 }
 
+#' Force computation of a database query, restoring R types
+#'
+#' collect_with_types() works exactly like [dplyr::collect()] with the
+#' exception that it restores the original R types not saved by the database,
+#' specifically logicals (booleans) and factor levels. It does this by looking
+#' up this information generated from the [dbWriteTable2()] function, which
+#' stores a *__types* table in the database for this information.
+#'
+#' @param tbl An SQL table pointer (generated via [dplyr::tbl()]).
+#'
+#' @seealso [dplyr::collect()]
 #' @export
 collect_with_types <- function(tbl) {
   con <- dbplyr::remote_con(tbl)

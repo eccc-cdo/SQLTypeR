@@ -58,6 +58,22 @@
   }
 }
 
+#' Copy data frames to database tables, saving R types
+#'
+#' dbWriteTable2() is a wrapper around [DBI::dbWriteTable()]; the key exception
+#' is that in addition to saving the relevant database table, it also saves
+#' a special *__types* table which stores R types which SQL databases do not
+#' (necessarily) have, most notably logicals (booleans) in case of sqlite, and
+#' factors more generally. Of course, *__types* becomes a **reserved** table,
+#' and *should not be used for anything else nor changed manually*.
+#'
+#' @param con A [DBIConnection][DBI::DBIConnection-class] object,
+#' as returned by [DBI::dbConnect()].
+#' @param name A character string specifying the unqouted DBMS table name.
+#' @param df a [data.frame][base::data.frame()] (or coercible to data.frame).
+#' @param ... Other parameters passed on to methods.
+#'
+#' @seealso [DBI::dbWriteTable()]
 #' @export
 dbWriteTable2 <- function(con, name, df, ...) {
   logicals <- .process_logicals(df, name)
