@@ -14,3 +14,12 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.0.2
 Suggests: 
     testthat (>= 2.1.0)
+Imports:
+    DBI (>= 1.1.0),
+    dbplyr (>= 1.4.0),
+    dplyr (>= 0.8.0),
+    forcats (>= 0.4.0),
+    jsonlite (>= 1.6.0),
+    magrittr (>= 1.4),
+    purrr (>= 0.3.0),
+    tibble (>= 2.1.0)
