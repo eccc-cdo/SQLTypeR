@@ -7,11 +7,11 @@ dt <- tibble::tibble(
   f = ordered(letters[4:6])
 )
 
-test_that('.process_logicals is character', {
+test_that('.process_logicals is character.', {
   expect_type(.process_logicals(dt, 'test-name'), 'character')
 })
 
-test_that('.process_logicals length is multiple of 4', {
+test_that('.process_logicals length is multiple of 4.', {
   object <- .process_logicals(dt, 'test-name')
   remainder <- length(object) %% 4
   expect_equal(remainder, 0)
@@ -21,7 +21,7 @@ test_that('.process_factors is a list', {
   expect_type(.process_factors(dt, 'test-name'), 'list')
 })
 
-test_that('.process_factors length is equal to factor elems of df', {
+test_that('.process_factors length is equal to factor elems of df.', {
   object <- SQLTypeR:::.process_factors(dt, 'test-name')
   ix <- 0
   for (col in dt) {
@@ -46,7 +46,30 @@ test_that('.create_meta returns the correctly formatted tibble.', {
     ), auto_unbox = TRUE)
   )
   expect_identical(tbl, tbl_check)
-  #)
+})
+
+test_that('.create_or_update_rtypes creates __types table if not exist.', {
+  meta <- .create_meta(
+    .process_logicals(dt, 'test'), .process_factors(dt, 'test')
+  )
+
+  db_table <- tibble::tribble(
+    ~table, ~var, ~type, ~levels,
+    'test', 'b', 'logical', '',
+    'test', 'd', 'logical', '',
+    'test', 'e', 'factor', jsonlite::toJSON(list(
+      ordered = FALSE, levels = levels(dt$e)
+    ), auto_unbox = TRUE),
+    'test', 'f', 'factor', jsonlite::toJSON(list(
+      ordered = FALSE, levels = levels(dt$f)
+    ), auto_unbox = TRUE),
+    'test2', 'ab', 'logical', ''
+  )
+
+  con <- DBI::dbConnect(RSQLite::SQLite(), ':memory:')
+  .create_or_update_rtypes(con, meta)
+  expect_true(DBI::dbExistsTable(con, '__types'))
+  DBI::dbDisconnect(con)
 })
 
 test_that('.create_or_update_rtypes updates correctly.', {
@@ -70,7 +93,6 @@ test_that('.create_or_update_rtypes updates correctly.', {
   con <- DBI::dbConnect(RSQLite::SQLite(), ':memory:')
   DBI::dbCreateTable(con, '__types', db_table)
   DBI::dbAppendTable(con, '__types', db_table)
-
   .create_or_update_rtypes(con, meta)
 
   rtypes <- dplyr::tbl(con, '__types') %>%
@@ -92,4 +114,13 @@ test_that('.create_or_update_rtypes updates correctly.', {
     )
 
   expect_identical(rtypes, db_table_expect)
+  DBI::dbDisconnect(con)
+})
+
+test_that('dbWriteTable2 produces __types with proper roundtrip info.', {
+  con <- DBI::dbConnect(RSQLite::SQLite(), ':memory:')
+  dbWriteTable2(con, 'test_table', dt)
+  tbl <- collect_with_types(dplyr::tbl(con, 'test_table'))
+  expect_identical(dt, tbl)
+  DBI::dbDisconnect(con)
 })
