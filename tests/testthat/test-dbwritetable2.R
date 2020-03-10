@@ -22,7 +22,7 @@ test_that('.process_factors is a list', {
 })
 
 test_that('.process_factors length is equal to factor elems of df.', {
-  object <- SQLTypeR:::.process_factors(dt, 'test-name')
+  object <- .process_factors(dt, 'test-name')
   ix <- 0
   for (col in dt) {
     if (is.factor(col)) ix <- ix + 1
