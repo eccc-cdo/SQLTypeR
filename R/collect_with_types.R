@@ -2,7 +2,7 @@
 .collect_meta <- function(con, tbl) {
   if (!DBI::dbExistsTable(con, '__types')) {
     warning('__types does not exist, running collect() instead.')
-    return(collect(tbl))
+    return(dplyr::collect(tbl))
   }
 
   table_filter <- as.character(dbplyr::remote_name(tbl))
@@ -52,6 +52,7 @@
 
 #' @export
 collect_with_types <- function(tbl) {
+  con <- dbplyr::remote_con(tbl)
   meta <- .collect_meta(con, tbl)
   meta_logical <- .get_logical_meta(meta)
   meta_factor <- .get_factor_meta(meta)
