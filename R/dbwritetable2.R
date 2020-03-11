@@ -28,12 +28,24 @@
     )
 }
 
+.fix_meta <- function(meta){
+  dplyr::bind_rows(
+    tibble::tibble(
+      table = character(),
+      var = character(),
+      type = character(),
+      levels = character()
+    ),
+    meta
+  )
+}
+
 .create_meta <- function(logicals, factors) {
   tibble::tribble(
     ~table, ~var, ~type, ~levels,
     !!!c(logicals, factors) %>%
       purrr::flatten()
-  )
+  ) %>% .fix_meta
 }
 
 #' @importFrom magrittr "%>%"
@@ -53,7 +65,8 @@
         type = ifelse(is.na(type_update), type, type_update),
         levels = ifelse(is.na(levels_update), levels, levels_update)
       ) %>%
-      dplyr::select(-dplyr::ends_with('_update'))
+      dplyr::select(-dplyr::ends_with('_update')) %>%
+      .fix_meta
     DBI::dbWriteTable(con, '__types', new_meta, overwrite = TRUE)
   }
 }
@@ -82,3 +95,4 @@ dbWriteTable2 <- function(con, name, df, ...) {
   DBI::dbWriteTable(con, name, df, ...)
   .create_or_update_rtypes(con, meta)
 }
+
