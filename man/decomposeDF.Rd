@@ -13,6 +13,9 @@ This operation is reversed by \code{\link[=recomposeDF]{recomposeDF()}}.
 \usage{
 decomposeDF(df)
 }
+\arguments{
+\item{df}{The dataframe to decompose.}
+}
 \description{
 Decompose a dataframe into the following representation:
 \itemize{

@@ -2,8 +2,10 @@ Package: SQLTypeR
 Type: Package
 Title: Preserve R types in SQL.
 Version: 0.1
-Author: Dejan Pavlic
-Maintainer: Dejan Pavlic <dejan.pavlic@canada.ca>
+Authors@R: c(
+    person("Dejan", "Pavlic", , "dejan.pavlic@canada.ca", role = c("aut", "cre")),
+    person("George", "Flerovsky", , "george.flerovsky@canada.ca", role = c("aut"))
+    )
 Description: This package creates a __types table in a SQL database
     which stores logical and factor information for tables, allowing
     R to restore original dataframe information on collection.

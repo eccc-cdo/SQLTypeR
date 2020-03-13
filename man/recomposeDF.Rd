@@ -14,6 +14,13 @@ This operation is reversed by \code{\link[=decomposeDF]{decomposeDF()}}.
 \usage{
 recomposeDF(decomposed)
 }
+\arguments{
+\item{decomposed}{A dataframe in decomposed representation: list(data = data, meta = meta).
+
+decomposeDF(df)
+
+recomposeDF(decomposeDF(df))}
+}
 \description{
 Recompose
 Recover the original dataframe from the following decomposed representation:
@@ -28,7 +35,4 @@ This operation is reversed by \code{\link[=decomposeDF]{decomposeDF()}}.
 \examples{
 df <- tibble(a = factor(c("a","a","b"), levels = c("a","b"), ordered = TRUE))
 
-decomposeDF(df)
-
-recomposeDF(decomposeDF(df))
 }
