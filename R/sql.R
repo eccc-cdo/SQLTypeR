@@ -108,6 +108,8 @@ loadDF <- function(con, name) {
     stop('loadDF: Database connection is closed.')
   if (!DBI::dbExistsTable(con, '__types'))
     stop('loadDF: Metadata table __rtypes does not exist in the database.')
+  if (!DBI::dbExistsTable(con, name))
+    stop(paste('loadDF: Table ', name, ' does not exist.'))
 
   # Assemble the decomposed representation
   decomposed <- DBI::dbWithTransaction(con, list(
