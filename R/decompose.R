@@ -5,12 +5,16 @@
 #'   - a meta dataframe containing the information necessary to
 #'     recover the logicals and factors in the original dataframe.
 #' This operation is reversed by [recomposeDF()].
-#' @export
 #'
 #' @param df The dataframe to decompose.
 #'
+#' @export
 #' @examples
-#' df <- tibble(a = factor(c("a","a","b"), levels = c("a","b"), ordered = TRUE))
+#' df <- tibble::tibble(
+#'   a = factor(c("a", "a", "b"), levels = c("a", "b"), ordered = TRUE),
+#'   b = c(TRUE, TRUE, FALSE),
+#'   c = c(1,2,3)
+#'  )
 #'
 #' decomposeDF(df)
 #'
@@ -68,11 +72,16 @@ decomposeDF <- function (df) {
 #'   - a meta dataframe containing the information necessary to
 #'     recover the logicals and factors in the original dataframe.
 #' This operation is reversed by [decomposeDF()].
-#' @export
-#' @examples
-#' df <- tibble(a = factor(c("a","a","b"), levels = c("a","b"), ordered = TRUE))
 #'
 #' @param decomposed A dataframe in decomposed representation: list(data = data, meta = meta).
+#'
+#' @export
+#' @examples
+#' df <- tibble::tibble(
+#'   a = factor(c("a", "a", "b"), levels = c("a", "b"), ordered = TRUE),
+#'   b = c(TRUE, TRUE, FALSE),
+#'   c = c(1,2,3)
+#'  )
 #'
 #' decomposeDF(df)
 #'
@@ -82,8 +91,8 @@ recomposeDF <- function(decomposed) {
   decomposed %>%
     .intermediate_rep %>%
     purrr::pmap(.recover_col) %>%
-    .set_names(., decomposed$meta$var) %>%
-    do.call(tibble::tibble, .)
+    (function(cols) .set_names(cols, decomposed$meta$var)) %>%
+    (function(args) do.call(tibble::tibble, args))
 }
 
 # Combine data and meta into an intermediate representation as a single tibble

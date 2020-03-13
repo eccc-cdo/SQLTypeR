@@ -1,6 +1,6 @@
 Package: SQLTypeR
 Type: Package
-Title: Preserve R types in SQL.
+Title: Preserve R types in SQL
 Version: 0.1
 Authors@R: c(
     person("Dejan", "Pavlic", , "dejan.pavlic@canada.ca", role = c("aut", "cre")),
@@ -9,7 +9,7 @@ Authors@R: c(
 Description: This package creates a __types table in a SQL database
     which stores logical and factor information for tables, allowing
     R to restore original dataframe information on collection.
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

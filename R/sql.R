@@ -8,9 +8,11 @@
 #' Additional arguments are passed to the database write call for the data table.
 #' The dataframe can be retrieved from the database using [loadDF()].
 #'
-#' @param con  An SQL database connection (generated via [DBI::dbConnect()]).
-#' @param df   The dataframe to save.
+#' @param con An SQL database connection (generated via [DBI::dbConnect()]).
+#' @param df The dataframe to save.
 #' @param name The table name to use in the database.
+#' @param overwrite Should the dataframe overwrite the existing content under that table name?
+#' @param ... Additional arguments to pass to the database write call for the dataframe.
 #'
 #' @seealso Pure functions to decompose/recompose dataframes: [decomposeDF()] [recomposeDF()]
 #' @export

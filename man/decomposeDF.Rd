@@ -27,7 +27,11 @@ This operation is reversed by \code{\link[=recomposeDF]{recomposeDF()}}.
 }
 }
 \examples{
-df <- tibble(a = factor(c("a","a","b"), levels = c("a","b"), ordered = TRUE))
+df <- tibble::tibble(
+  a = factor(c("a", "a", "b"), levels = c("a", "b"), ordered = TRUE),
+  b = c(TRUE, TRUE, FALSE),
+  c = c(1,2,3)
+ )
 
 decomposeDF(df)
 

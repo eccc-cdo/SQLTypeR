@@ -21,6 +21,10 @@ saveDF(con, df, name, overwrite = TRUE, ...)
 \item{df}{The dataframe to save.}
 
 \item{name}{The table name to use in the database.}
+
+\item{overwrite}{Should the dataframe overwrite the existing content under that table name?}
+
+\item{...}{Additional arguments to pass to the database write call for the dataframe.}
 }
 \description{
 Save
