@@ -43,7 +43,7 @@ gen_df <- gen.and_then(
     gen.list(gen_col(n - 1), from = 0, to = 5),
     function(cols) {
       m <- length(cols)
-      named_cols <- if (m == 0) cols else rlang::set_names(cols, letters[1:m])
+      named_cols <- if (m == 0) cols else purrr::set_names(cols, letters[1:m])
       do.call(dplyr::tibble, named_cols)
     }
   )

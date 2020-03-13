@@ -117,5 +117,5 @@ recomposeDF <- function(decomposed) {
 
 # Modified [rlang::set_names()] to handle the empty case, as a no-op.
 .set_names <- function(cols, names) {
-  if (length(cols) == 0) cols else rlang::set_names(cols, names)
+  if (length(cols) == 0) cols else purrr::set_names(cols, names)
 }
