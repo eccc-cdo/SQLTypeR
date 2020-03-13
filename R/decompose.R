@@ -6,6 +6,9 @@
 #'     recover the logicals and factors in the original dataframe.
 #' This operation is reversed by [recomposeDF()].
 #' @export
+#'
+#' @param df The dataframe to decompose.
+#'
 #' @examples
 #' df <- tibble(a = factor(c("a","a","b"), levels = c("a","b"), ordered = TRUE))
 #'
@@ -68,6 +71,8 @@ decomposeDF <- function (df) {
 #' @export
 #' @examples
 #' df <- tibble(a = factor(c("a","a","b"), levels = c("a","b"), ordered = TRUE))
+#'
+#' @param decomposed A dataframe in decomposed representation: list(data = data, meta = meta).
 #'
 #' decomposeDF(df)
 #'
