@@ -32,12 +32,16 @@
 saveDF <- function(con, df, name, overwrite = TRUE, ...) {
   # Show stoppers
   if (!DBI::dbIsValid(con))
-    stop('saveDF: Database connection is closed.')
-  if (DBI::dbIsReadOnly(con))
-    stop('saveDF: Database connection is read-only.')
+    stop('Database connection is closed.')
   if (length(df) == 0)
-    stop('saveDF: Dataframe must have at least one column to write it to database.')
+    stop('Dataframe must have at least one column to write it to database.')
 
+  # Allow me to explain.
+  # DBI::dbIsReadOnly appears to be broken: it does not detect a read-only SQLite connection.
+  # So, as a workaround, we need to trigger the underlying SQLite error,
+  # **by attempting to write to the database.**
+  # Therefore, we will forge on ahead to the DBI transaction, below,
+  # which will rollback all database changes if the connection is read-only.
 
   # Decompose df into the dumbed-down table and meta records
   decomposed <- decomposeDF(df)
@@ -68,7 +72,13 @@ saveDF <- function(con, df, name, overwrite = TRUE, ...) {
     }
 
     # Write data to database
-    DBI::dbWriteTable(con, name, data, overwrite = overwrite, ...)
+    if (!DBI::dbExistsTable(con, name)) {
+      DBI::dbCreateTable(con, name, data)
+      invisible(DBI::dbAppendTable(con, name, data))
+    } else {
+      DBI::dbWriteTable(con, name, data, overwrite = overwrite, ...)
+    }
+
   })
 
 }
@@ -105,11 +115,11 @@ saveDF <- function(con, df, name, overwrite = TRUE, ...) {
 loadDF <- function(con, name) {
   # Show stoppers
   if (!DBI::dbIsValid(con))
-    stop('loadDF: Database connection is closed.')
+    stop('Database connection is closed.')
   if (!DBI::dbExistsTable(con, '__types'))
-    stop('loadDF: Metadata table __rtypes does not exist in the database.')
+    stop('Metadata table __rtypes does not exist in the database.')
   if (!DBI::dbExistsTable(con, name))
-    stop(paste('loadDF: Table ', name, ' does not exist.'))
+    stop('Table does not exist in the database.')
 
   # Assemble the decomposed representation
   decomposed <- DBI::dbWithTransaction(con, list(
