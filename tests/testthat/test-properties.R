@@ -51,121 +51,13 @@ gen_df <- gen.and_then(
 
 # ====================================
 # Pure Decompose/Recompose Tests
-test_that("Example from 'decompose.R' documentation works.", {
-  df <- tibble::tibble(a = factor(c("a","a","b"), levels = c("a","b"), ordered = TRUE))
-  expect_equal(df, recomposeDF(decomposeDF(df)))
-})
-
 test_that("Recompose is the inverse of decompose.",
   forall(gen_df, test = 100, function(df) {
     expect_equal(df, recomposeDF(decomposeDF(df)))
 }))
 
 # ====================================
-# Impure Save/Load Error Triggers
-test_that("Connection closed error triggers for saveDF.", {
-  df <- tibble::tibble(a = c(1))
-
-  test <- function(){
-    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-    DBI::dbDisconnect(con)
-    saveDF(con, df, "test")
-  }
-
-  expect_error(test(), 'Database connection is closed.')
-})
-
-test_that("Read-only connection error triggers for saveDF.", {
-  df <- tibble::tibble(a = c(1))
-
-  test <- function(){
-    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:",
-                          flags = RSQLite::SQLITE_RO)
-    saveDF(con, df, "test")
-    DBI::dbDisconnect(con)
-  }
-
-  expect_error(test(), 'attempt to write a readonly database')
-})
-
-test_that("Empty dataframe error triggers for saveDF.", {
-  df <- tibble::tibble()
-
-  test <- function(){
-    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-    saveDF(con, df, "test")
-    DBI::dbDisconnect(con)
-  }
-
-  expect_error(test(), 'Dataframe must have at least one column to write it to database.')
-})
-
-test_that("Connection closed error triggers for loadDF.", {
-  test <- function(){
-    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-    DBI::dbDisconnect(con)
-    loadDF(con, "test")
-  }
-
-  expect_error(test(), 'Database connection is closed.')
-})
-
-test_that("Metadata non-existence error triggers for loadDF.", {
-  df <- tibble::tibble(a = c(1))
-  decomposed <- decomposeDF(df)
-  data <- decomposed$data
-  meta <- decomposed$meta %>%
-    dplyr::mutate(table = "test")
-
-  test <- function(){
-    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-    DBI::dbCreateTable(con, "test", data)
-    invisible(DBI::dbAppendTable(con, "test", data))
-    loadDF(con, "test")
-    DBI::dbDisconnect(con)
-  }
-
-  expect_error(test(), 'Metadata table __rtypes does not exist in the database.')
-})
-
-test_that("Table non-existence error triggers for loadDF.", {
-  df <- tibble::tibble(a = c(1))
-  decomposed <- decomposeDF(df)
-  data <- decomposed$data
-  meta <- decomposed$meta %>%
-    dplyr::mutate(table = "test")
-
-  test <- function(){
-    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-    DBI::dbCreateTable(con, '__types', meta)
-    invisible(DBI::dbAppendTable(con, '__types', meta))
-    loadDF(con, "test")
-    DBI::dbDisconnect(con)
-  }
-
-  expect_error(test(), 'Table does not exist in the database.')
-})
-
-# ====================================
 # Impure Save/Load Tests
-test_that("Example from 'sql.R' documentation works.", {
-  con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
-
-  df <- tibble::tibble(
-    a = factor(c("a", "a", "b"), levels = c("a", "b"), ordered = TRUE),
-    b = c(TRUE, TRUE, FALSE),
-    c = c(1,2,3)
-   )
-
-  saveDF(con, df, "test")
-
-  df2 <- loadDF(con, "test")
-
-  DBI::dbDisconnect(con)
-
-  expect_equal(df, df2)
-})
-
 test_that("Loading a dataframe from database recovers the saved dataframe identically.",
   forall(gen_df, tests = 100, function(df) {
     test <- function() {
