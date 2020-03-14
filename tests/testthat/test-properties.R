@@ -37,10 +37,10 @@ gen_col <- function(n) gen.and_then(
 )
 
 # Generate a tibble with 0 to 5 rows, with 0 and 5 random columns.
-gen_df <- gen.and_then(
+gen_df_ <- function(nonempty = FALSE) gen.and_then(
   gen.int(5 + 1),
   function(n) gen.with(
-    gen.list(gen_col(n - 1), from = 0, to = 5),
+    gen.list(gen_col(n - 1), from = as.integer(nonempty), to = 5),
     function(cols) {
       m <- length(cols)
       named_cols <- if (m == 0) cols else purrr::set_names(cols, letters[1:m])
@@ -48,6 +48,8 @@ gen_df <- gen.and_then(
     }
   )
 )
+gen_df <- gen_df_()
+gen_df_nonEmpty <- gen_df_(nonempty = TRUE)
 
 # ====================================
 # Pure Decompose/Recompose Tests
@@ -59,71 +61,49 @@ test_that("Recompose is the inverse of decompose.",
 # ====================================
 # Impure Save/Load Tests
 test_that("Loading a dataframe from database recovers the saved dataframe identically.",
-  forall(gen_df, tests = 100, function(df) {
-    test <- function() {
-      con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+  forall(gen_df_nonEmpty, tests = 100, function(df) {
+    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 
-      saveDF(con, df, "test")
+    saveDF(con, df, "test")
 
-      df_loaded <- loadDF(con, "test")
+    df_loaded <- loadDF(con, "test")
 
-      DBI::dbDisconnect(con)
+    DBI::dbDisconnect(con)
 
-      df_loaded
-    }
-
-    if (length(df) == 0)
-      expect_error(test(), 'Dataframe must have at least one column to write it to database.')
-    else
-      expect_equal(df, test())
-
+    expect_equal(df, df_loaded)
 }))
 
 test_that("Saving a dataframe does not corrupt other previously saved dataframes.",
-  forall(gen.list(gen_df, of = 2), tests = 100, function(dfs) {
+  forall(gen.list(gen_df_nonEmpty, of = 2), tests = 100, function(dfs) {
     df_a <- dfs[[1]]
     df_b <- dfs[[2]]
 
-    test <- function() {
-      con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 
-      saveDF(con, df_a, "test_a")
-      saveDF(con, df_b, "test_b")
+    saveDF(con, df_a, "test_a")
+    saveDF(con, df_b, "test_b")
 
-      df_a_loaded <- loadDF(con, "test_a")
+    df_a_loaded <- loadDF(con, "test_a")
 
-      DBI::dbDisconnect(con)
+    DBI::dbDisconnect(con)
 
-      df_a_loaded
-    }
-
-    if (length(df_a) == 0 || length(df_b) == 0)
-      expect_error(test(), 'Dataframe must have at least one column to write it to database.')
-    else
-      expect_equal(df_a, test())
+    expect_equal(df_a, df_a_loaded)
 }))
 
 test_that("Updating a saved dataframe does not corrupt it.",
-  forall(gen.list(gen_df, of = 2), tests = 100, function(dfs) {
+  forall(gen.list(gen_df_nonEmpty, of = 2), tests = 100, function(dfs) {
     df_a <- dfs[[1]]
     df_b <- dfs[[2]]
 
-    test <- function() {
-      con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+    con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 
-      saveDF(con, df_a, "test")
-      saveDF(con, df_b, "test")
+    saveDF(con, df_a, "test")
+    saveDF(con, df_b, "test")
 
-      df_b_loaded <- loadDF(con, "test")
+    df_b_loaded <- loadDF(con, "test")
 
-      DBI::dbDisconnect(con)
+    DBI::dbDisconnect(con)
 
-      df_b_loaded
-    }
-
-    if (length(df_a) == 0 || length(df_b) == 0)
-      expect_error(test(), 'Dataframe must have at least one column to write it to database.')
-    else
-      expect_equal(df_b, test())
+    expect_equal(df_b, df_b_loaded)
 }))
 
