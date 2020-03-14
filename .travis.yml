@@ -1,7 +1,4 @@
-language: r
-warnings_are_errors: false
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
-os: linux
-
-after_success:
-    - Rscript -e 'covr::coveralls()'
+language: R
+cache: packages
