@@ -17,6 +17,7 @@ RoxygenNote: 7.0.2
 Suggests: 
     covr,
     hedgehog,
+    RSQLite (>= 2.2.0),
     testthat (>= 2.1.0)
 Imports:
     DBI (>= 1.1.0),
