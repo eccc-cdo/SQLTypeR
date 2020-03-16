@@ -34,9 +34,11 @@
 saveDF <- function(con, df, name, overwrite = TRUE, ...) {
   # Show stoppers
   if (!DBI::dbIsValid(con))
-    stop('Database connection is closed.')
+    rlang::abort('Database connection is closed.')
   if (length(df) == 0)
-    stop('Dataframe must have at least one column to write it to database.')
+    rlang::abort('Dataframe must have at least one column to write it to database.',
+          df = df,
+          name = name)
 
   # Allow me to explain.
   # DBI::dbIsReadOnly appears to be broken: it does not detect a read-only SQLite connection.
@@ -117,11 +119,12 @@ saveDF <- function(con, df, name, overwrite = TRUE, ...) {
 loadDF <- function(con, name) {
   # Show stoppers
   if (!DBI::dbIsValid(con))
-    stop('Database connection is closed.')
+    rlang::abort('Database connection is closed.')
   if (!DBI::dbExistsTable(con, '__types'))
-    stop('Metadata table __rtypes does not exist in the database.')
+    rlang::abort('Metadata table __rtypes does not exist in the database.')
   if (!DBI::dbExistsTable(con, name))
-    stop('Table does not exist in the database.')
+    rlang::abort('Table does not exist in the database.',
+         name = name)
 
   # Assemble the decomposed representation
   decomposed <- DBI::dbWithTransaction(con, list(
